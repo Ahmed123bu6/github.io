@@ -15,8 +15,43 @@
       background-color: #f4f4f4;
       color: #000;
     }
-    #app {
+    /* شاشة الترحيب (Splash Screen) */
+    #splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #fff;
+      z-index: 1000;
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+    #splash-screen img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+    }
+    #splash-screen h1 {
+      margin-bottom: 20px;
+    }
+    #splash-screen p {
+      margin-bottom: 20px;
+      max-width: 80%;
+    }
+    #splash-screen button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    /* التطبيق الرئيسي */
+    #app {
+      display: none;
       flex-direction: column;
       height: 100vh;
     }
@@ -138,30 +173,14 @@
     #profile-tab {
       text-align: center;
     }
-    /* نمط رسالة الترحيب في صفحة تسجيل الدخول */
-    #welcome-message {
-      background-color: #fff;
-      border: 1px solid #ccc;
-      padding: 20px;
-      border-radius: 10px;
-      width: 80%;
-      margin: 20px auto;
-      text-align: center;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    /* مركز Telegram Login Widget */
-    #telegram-login-container {
-      margin-top: 20px;
-      text-align: center;
-    }
-    /* منطقة بيانات المستخدم بعد تسجيل الدخول */
-    #user-info {
-      margin-top: 20px;
-    }
-    #user-info img {
+    #profile-tab img {
+      width: 100px;
+      height: 100px;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
+      margin-bottom: 10px;
+    }
+    #profile-tab .user-info {
+      margin-top: 20px;
     }
     #admin-panel {
       border: 1px solid #000;
@@ -171,8 +190,17 @@
   </style>
 </head>
 <body>
+  <!-- شاشة الترحيب -->
+  <div id="splash-screen">
+    <img src="https://via.placeholder.com/150" alt="Bot Image">
+    <h1>SolscanXxxf_bot</h1>
+    <p>Welcome to our Telegram Web App.<br>
+       By using this app, you agree to our Terms of Service and Privacy Policy.</p>
+    <button id="agree-btn">موافق</button>
+  </div>
+
+  <!-- التطبيق الرئيسي -->
   <div id="app">
-    <!-- منطقة المحتوى الرئيسية -->
     <div id="content">
       <!-- تبويب Home: الأسئلة الرياضية -->
       <div id="home-tab" class="tab-section active">
@@ -301,7 +329,7 @@
         </ul>
         <p>Your Ranking: <span id="user-ranking">N/A</span></p>
       </div>
-      <!-- تبويب Profile (حسابي) مع دمج Telegram Login Widget -->
+      <!-- تبويب Profile (حسابي) مع تكامل Telegram Login -->
       <div id="profile-tab" class="tab-section">
         <h2>Your Profile</h2>
         <!-- منطقة الترحيب وتسجيل الدخول عبر Telegram -->
@@ -364,6 +392,15 @@
   </div>
 
   <script>
+    /***********************
+     * شاشة الترحيب: عند فتح التطبيق
+     ***********************/
+    document.getElementById('agree-btn').addEventListener('click', function(){
+      // عند النقر على "موافق"، يتم إخفاء شاشة الترحيب وعرض التطبيق الرئيسي
+      document.getElementById('splash-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+    });
+
     /***********************
      * المتغيرات العامة
      ***********************/
