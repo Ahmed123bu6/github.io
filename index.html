@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Telegram Web App</title>
+  <style>
+    /* General resets and layout */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      color: #000;
+    }
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    /* Main content area for each tab */
+    #content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    /* Bottom Navigation Bar */
+    #bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background-color: #fff;
+      border-top: 1px solid #ccc;
+      padding: 10px 0;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    #bottom-nav button {
+      background: none;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      color: #000;
+    }
+    /* Hide all sections initially */
+    .tab-section {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+    /* Styles for Home tab (Math Questions) */
+    #home-tab {
+      text-align: center;
+    }
+    #question {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+    .option {
+      display: block;
+      margin: 5px auto;
+      padding: 10px;
+      width: 80%;
+      border: 1px solid #000;
+      cursor: pointer;
+    }
+    #home-timer {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    /* Styles for Earn tab */
+    #earn-tab .challenge {
+      border: 1px solid #000;
+      padding: 10px;
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #earn-tab .challenge button {
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    /* Styles for Invite tab */
+    #invite-tab {
+      text-align: center;
+    }
+    #invite-tab input[type="text"] {
+      width: 80%;
+      padding: 8px;
+      margin: 10px 0;
+    }
+    #invite-tab button {
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    /* Styles for Ad tab */
+    #ad-tab form {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    #ad-tab input, #ad-tab textarea {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+    }
+    #ad-tab button {
+      padding: 10px;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+    /* Rankings tab styles */
+    #ranking-tab .ranking-list {
+      list-style: none;
+      padding: 0;
+    }
+    #ranking-tab li {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      justify-content: space-between;
+    }
+    /* Profile tab styles */
+    #profile-tab {
+      text-align: center;
+    }
+    #profile-tab img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+    /* Admin Panel styles (only visible to admin) */
+    #admin-panel {
+      border: 1px solid #000;
+      padding: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Main content area -->
+    <div id="content">
+      <!-- Home Tab: Math Questions -->
+      <div id="home-tab" class="tab-section active">
+        <h2>Math Questions</h2>
+        <div id="question">Question will appear here</div>
+        <div id="options">
+          <div class="option" data-index="0">Option 1</div>
+          <div class="option" data-index="1">Option 2</div>
+          <div class="option" data-index="2">Option 3</div>
+          <div class="option" data-index="3">Option 4</div>
+        </div>
+        <div id="home-timer">Time: 5</div>
+        <div id="home-message"></div>
+        <div id="help-section" style="margin-top:20px;">
+          <button id="skip-time">Skip Time (Help)</button>
+          <div>Help available: <span id="help-count">0</span></div>
+        </div>
+      </div>
+      <!-- Earn Tab -->
+      <div id="earn-tab" class="tab-section">
+        <h2>Earn Coins</h2>
+        <div class="project-links">
+          <p><button onclick="openLink('https://t.me/YourChannel')">Join our Telegram Channel</button></p>
+          <p><button onclick="openLink('https://twitter.com/YourProfile')">Join our Twitter</button></p>
+        </div>
+        <div class="challenge" data-required="100">
+          <span>Answer 100 questions and earn 1,000 coins</span>
+          <button disabled>Claim 1,000 coins</button>
+          <span class="progress">0/100</span>
+        </div>
+        <div class="challenge" data-required="1000">
+          <span>Answer 1,000 questions and earn 100,000 coins</span>
+          <button disabled>Claim 100,000 coins</button>
+          <span class="progress">0/1000</span>
+        </div>
+        <div class="challenge" data-required="2000">
+          <span>Answer 2,000 questions and earn 200,000 coins</span>
+          <button disabled>Claim 200,000 coins</button>
+          <span class="progress">0/2000</span>
+        </div>
+        <div class="challenge" data-required="5000">
+          <span>Answer 5,000 questions and earn 500,000 coins</span>
+          <button disabled>Claim 500,000 coins</button>
+          <span class="progress">0/5000</span>
+        </div>
+        <div class="challenge" data-required="10000">
+          <span>Answer 10,000 questions and earn 1,000,000 coins</span>
+          <button disabled>Claim 1,000,000 coins</button>
+          <span class="progress">0/10000</span>
+        </div>
+        <div class="challenge" data-required="20000">
+          <span>Answer 20,000 questions and earn 2,000,000 coins</span>
+          <button disabled>Claim 2,000,000 coins</button>
+          <span class="progress">0/20000</span>
+        </div>
+        <div style="margin-top:20px;">
+          <button id="daily-task">Daily Task (Earn 100 coins)</button>
+          <button id="weekly-task">Weekly Task (Earn 10,000 coins)</button>
+          <button id="monthly-task">Monthly Task (Earn 100,000 coins)</button>
+        </div>
+      </div>
+      <!-- Invite Tab -->
+      <div id="invite-tab" class="tab-section">
+        <h2>Invite Friends</h2>
+        <p>Your referral link:</p>
+        <input type="text" id="referral-link" value="https://yourapp.com/?ref=YourUniqueID" readonly>
+        <button id="copy-link">Copy Link</button>
+        <p>Earn 10% of your friends' coins</p>
+        <p>Total coins earned from referrals: <span id="referral-coins">0</span></p>
+        <p>Total invitations: <span id="referral-count">0</span></p>
+        <p>Earn an extra 1,000 coins for every invited friend. For every 5 referrals, you get one extra help.</p>
+      </div>
+      <!-- Ad Tab -->
+      <div id="ad-tab" class="tab-section">
+        <h2>Advertisements</h2>
+        <div id="ad-actions">
+          <button id="create-ad-btn">Create Ad</button>
+          <button id="view-ads-btn">View Ads & Earn Coins</button>
+          <button id="my-ads-btn" style="display:none;">My Ads</button>
+        </div>
+        <div id="ad-form-container" style="display:none; margin-top:20px;">
+          <form id="ad-form">
+            <label>Ad Name:</label>
+            <input type="text" id="ad-name" required>
+            <label>Ad Description:</label>
+            <textarea id="ad-description" required></textarea>
+            <label>Ad Image (URL for demo):</label>
+            <input type="text" id="ad-image" placeholder="Enter image URL" required>
+            <label>Project Link - Telegram:</label>
+            <input type="text" id="ad-telegram" placeholder="t.me/YourChannel" required>
+            <label>Project Link - YouTube:</label>
+            <input type="text" id="ad-youtube" placeholder="youtube.com/YourChannel" required>
+            <label>Project Link - Twitter:</label>
+            <input type="text" id="ad-twitter" placeholder="twitter.com/YourProfile" required>
+            <label>Additional Link:</label>
+            <input type="text" id="ad-extra" placeholder="Any link">
+            <label>Number of Views (min 50):</label>
+            <input type="number" id="ad-views" min="50" required>
+            <button type="submit">Create Ad & Proceed to Payment</button>
+          </form>
+        </div>
+        <div id="ad-viewer" style="display:none; margin-top:20px;">
+          <div id="current-ad">
+            <!-- Ad details will be shown here -->
+            <h3 id="ad-project-name">Project Name</h3>
+            <img id="ad-project-image" src="" alt="Ad Image" style="width:100%; max-width:300px;">
+            <p id="ad-project-description">Ad Description</p>
+            <p>
+              <a href="#" id="ad-telegram-link">Telegram</a> | 
+              <a href="#" id="ad-youtube-link">YouTube</a> | 
+              <a href="#" id="ad-twitter-link">Twitter</a> | 
+              <a href="#" id="ad-extra-link">Extra Link</a>
+            </p>
+            <div id="ad-timer">10</div>
+            <button id="next-ad">Next Ad</button>
+            <button id="prev-ad">Previous Ad</button>
+          </div>
+        </div>
+      </div>
+      <!-- Ranking Tab -->
+      <div id="ranking-tab" class="tab-section">
+        <h2>Your Balance</h2>
+        <p>Total Coins: <span id="total-coins">0</span></p>
+        <h3>Top Rankings</h3>
+        <ul class="ranking-list" id="ranking-list">
+          <!-- Ranking items will be inserted here -->
+        </ul>
+        <p>Your Ranking: <span id="user-ranking">N/A</span></p>
+      </div>
+      <!-- Profile Tab -->
+      <div id="profile-tab" class="tab-section">
+        <h2>Your Profile</h2>
+        <img src="https://via.placeholder.com/100" alt="Profile Picture">
+        <p>Username: <span id="username">User123</span></p>
+        <p>Total Coins: <span id="profile-coins">0</span></p>
+        <button id="add-bot-btn">Add Bot to Your Group and Get 100,000 Coins</button>
+        <div id="group-verification" style="margin-top:20px; display:none;">
+          <label>Enter Your Group Link:</label>
+          <input type="text" id="group-link">
+          <button id="verify-group-btn">Verify and Claim Gift</button>
+        </div>
+        <div style="margin-top:20px;">
+          <p>Questions Answered Correctly: <span id="correct-count">0</span></p>
+          <p>Questions Answered Incorrectly: <span id="incorrect-count">0</span></p>
+          <p>Total Questions: <span id="total-questions">0</span></p>
+        </div>
+      </div>
+      <!-- Admin Panel (Visible only to @ahmed1999101) -->
+      <div id="admin-panel" class="tab-section" style="display:none;">
+        <h2>Admin Panel</h2>
+        <p>Total Members: <span id="admin-members">0</span></p>
+        <p>Total Coins (All Users): <span id="admin-total-coins">0</span></p>
+        <p>Total Questions Solved: <span id="admin-total-questions">0</span></p>
+        <div style="margin-top:20px;">
+          <label>Change Earn Tab Links:</label>
+          <input type="text" id="new-telegram-link" placeholder="New Telegram Link">
+          <input type="text" id="new-twitter-link" placeholder="New Twitter Link">
+          <button id="update-links-btn">Update Links</button>
+        </div>
+      </div>
+    </div>
+    <!-- Bottom Navigation -->
+    <nav id="bottom-nav">
+      <button id="nav-home">Home</button>
+      <button id="nav-earn">Earn</button>
+      <button id="nav-invite">Invite</button>
+      <button id="nav-ad">Ad</button>
+      <button id="nav-ranking">Ranking</button>
+      <button id="nav-profile">Profile</button>
+    </nav>
+  </div>
+
+  <script>
+    /***********************
+     * Global Variables
+     ***********************/
+    let currentTab = 'home';
+    let coinCount = 0;
+    let questionTimer;
+    let questionTimeLeft = 5; // seconds
+    let currentQuestion = {};
+    let userData = {
+      correct: 0,
+      incorrect: 0,
+      total: 0,
+      helpCount: 0,
+      referralCoins: 0,
+      referrals: 0
+    };
+    // Dummy question bank for math questions
+    const questions = [
+      {
+        question: "What is 2 + 2?",
+        options: ["3", "4", "5", "6"],
+        answer: 1
+      },
+      {
+        question: "What is 5 * 3?",
+        options: ["15", "10", "20", "8"],
+        answer: 0
+      }
+      // Add more questions as needed
+    ];
+    let questionIndex = 0;
+
+    /***********************
+     * Navigation Functions
+     ***********************/
+    const tabs = {
+      home: document.getElementById('home-tab'),
+      earn: document.getElementById('earn-tab'),
+      invite: document.getElementById('invite-tab'),
+      ad: document.getElementById('ad-tab'),
+      ranking: document.getElementById('ranking-tab'),
+      profile: document.getElementById('profile-tab'),
+      admin: document.getElementById('admin-panel')
+    };
+
+    function showTab(tabName) {
+      currentTab = tabName;
+      for (let key in tabs) {
+        tabs[key].classList.remove('active');
+      }
+      if(tabs[tabName]){
+        tabs[tabName].classList.add('active');
+      }
+    }
+
+    document.getElementById('nav-home').addEventListener('click', () => showTab('home'));
+    document.getElementById('nav-earn').addEventListener('click', () => showTab('earn'));
+    document.getElementById('nav-invite').addEventListener('click', () => showTab('invite'));
+    document.getElementById('nav-ad').addEventListener('click', () => showTab('ad'));
+    document.getElementById('nav-ranking').addEventListener('click', () => showTab('ranking'));
+    document.getElementById('nav-profile').addEventListener('click', () => showTab('profile'));
+
+    /***********************
+     * Home Tab: Math Questions
+     ***********************/
+    function loadQuestion() {
+      // Reset timer and messages
+      questionTimeLeft = 5;
+      document.getElementById('home-message').innerText = '';
+      document.getElementById('home-timer').innerText = `Time: ${questionTimeLeft}`;
+
+      // Load question (cycle through dummy bank)
+      currentQuestion = questions[questionIndex % questions.length];
+      questionIndex++;
+      document.getElementById('question').innerText = currentQuestion.question;
+      const optionDivs = document.querySelectorAll('.option');
+      optionDivs.forEach((div, index) => {
+        div.innerText = currentQuestion.options[index];
+      });
+
+      // Start countdown
+      if (questionTimer) clearInterval(questionTimer);
+      questionTimer = setInterval(() => {
+        questionTimeLeft--;
+        document.getElementById('home-timer').innerText = `Time: ${questionTimeLeft}`;
+        if (questionTimeLeft <= 0) {
+          clearInterval(questionTimer);
+          // If no answer was selected, treat as wrong answer
+          processAnswer(-1);
+        }
+      }, 1000);
+    }
+
+    function processAnswer(selectedIndex) {
+      clearInterval(questionTimer);
+      userData.total++;
+      if (selectedIndex === currentQuestion.answer) {
+        // Correct answer
+        userData.correct++;
+        coinCount += 10;
+        document.getElementById('home-message').innerText = "Correct! You've earned 10 Coins.";
+        // Load next question immediately
+        setTimeout(loadQuestion, 1000);
+      } else {
+        // Wrong answer
+        userData.incorrect++;
+        document.getElementById('home-message').innerText = "Wrong Answer!";
+        // Start a 5-minute cooldown before the next question
+        let cooldown = 5 * 60;
+        const cooldownTimer = setInterval(() => {
+          cooldown--;
+          document.getElementById('home-timer').innerText = `Next question in: ${cooldown} sec`;
+          if (cooldown <= 0) {
+            clearInterval(cooldownTimer);
+            loadQuestion();
+          }
+        }, 1000);
+      }
+      updateStats();
+    }
+
+    document.querySelectorAll('.option').forEach(option => {
+      option.addEventListener('click', function() {
+        const selected = parseInt(this.getAttribute('data-index'));
+        processAnswer(selected);
+      });
+    });
+
+    // Skip time (help) button
+    document.getElementById('skip-time').addEventListener('click', function() {
+      if (userData.helpCount > 0) {
+        userData.helpCount--;
+        loadQuestion();
+        document.getElementById('help-count').innerText = userData.helpCount;
+      } else {
+        alert("No help available!");
+      }
+    });
+
+    /***********************
+     * Earn Tab Functions
+     ***********************/
+    // For demo purposes, challenges do not update automatically.
+    // In a real application, you would track the user’s progress and enable buttons when requirements are met.
+
+    /***********************
+     * Invite Tab Functions
+     ***********************/
+    document.getElementById('copy-link').addEventListener('click', function() {
+      const linkField = document.getElementById('referral-link');
+      linkField.select();
+      document.execCommand("copy");
+      alert("Referral link copied!");
+    });
+
+    /***********************
+     * Ad Tab Functions
+     ***********************/
+    document.getElementById('create-ad-btn').addEventListener('click', function() {
+      document.getElementById('ad-form-container').style.display = 'block';
+      document.getElementById('ad-viewer').style.display = 'none';
+    });
+    document.getElementById('view-ads-btn').addEventListener('click', function() {
+      document.getElementById('ad-viewer').style.display = 'block';
+      document.getElementById('ad-form-container').style.display = 'none';
+      // Load ads logic here (for demo, we simulate one ad)
+      loadAd();
+    });
+    document.getElementById('ad-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Validate Telegram link (must contain "t.me")
+      const telegramLink = document.getElementById('ad-telegram').value;
+      if (!telegramLink.includes("t.me")) {
+        alert("Incorrect Telegram link format.");
+        return;
+      }
+      // Validate YouTube and Twitter links similarly if needed
+      // Simulate payment: each view costs $0.02 and payment is done in "stars"
+      const views = parseInt(document.getElementById('ad-views').value);
+      if (views < 50) {
+        alert("Minimum 50 views required.");
+        return;
+      }
+      // For demo, we assume payment is successful
+      alert("Payment confirmed. Your ad will be published in a few minutes.");
+      // Reset form and update My Ads button (for demo)
+      document.getElementById('ad-form').reset();
+      document.getElementById('my-ads-btn').style.display = 'block';
+    });
+    function loadAd() {
+      // For demonstration, load a dummy ad in the ad viewer
+      document.getElementById('ad-project-name').innerText = "Demo Project";
+      document.getElementById('ad-project-image').src = "https://via.placeholder.com/300";
+      document.getElementById('ad-project-description').innerText = "This is a demo ad description.";
+      document.getElementById('ad-telegram-link').href = "https://t.me/YourChannel";
+      document.getElementById('ad-youtube-link').href = "https://youtube.com/YourChannel";
+      document.getElementById('ad-twitter-link').href = "https://twitter.com/YourProfile";
+      document.getElementById('ad-extra-link').href = "#";
+      // Start ad countdown timer
+      let adTime = 10;
+      document.getElementById('ad-timer').innerText = adTime;
+      const adCountdown = setInterval(() => {
+        adTime--;
+        document.getElementById('ad-timer').innerText = adTime;
+        if (adTime <= 0) {
+          clearInterval(adCountdown);
+          // Simulate coin reward for viewing ad
+          coinCount += 1000;
+          alert("You've earned 1,000 coins from viewing the ad!");
+        }
+      }, 1000);
+    }
+
+    /***********************
+     * Ranking Tab Functions
+     ***********************/
+    function updateRanking() {
+      // Dummy ranking list for demonstration
+      const rankings = [
+        { username: "Alice", coins: 1500000 },
+        { username: "Bob", coins: 1200000 },
+        { username: "Charlie", coins: 900000 }
+      ];
+      // Add current user
+      rankings.push({ username: document.getElementById('username').innerText, coins: coinCount });
+      // Sort rankings descending
+      rankings.sort((a, b) => b.coins - a.coins);
+      const rankingList = document.getElementById('ranking-list');
+      rankingList.innerHTML = "";
+      rankings.forEach((user, index) => {
+        let displayCoins = user.coins;
+        if (displayCoins >= 1e9) displayCoins = (displayCoins / 1e9).toFixed(1) + "B";
+        else if (displayCoins >= 1e6) displayCoins = (displayCoins / 1e6).toFixed(1) + "M";
+        else if (displayCoins >= 1e3) displayCoins = (displayCoins / 1e3).toFixed(1) + "K";
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${index+1}. ${user.username}</span><span>${displayCoins} coins</span>`;
+        rankingList.appendChild(li);
+        // If this is the current user, update user ranking display
+        if (user.username === document.getElementById('username').innerText) {
+          document.getElementById('user-ranking').innerText = index + 1;
+        }
+      });
+      document.getElementById('total-coins').innerText = coinCount;
+    }
+
+    /***********************
+     * Profile Tab Functions
+     ***********************/
+    document.getElementById('add-bot-btn').addEventListener('click', function() {
+      // Show group verification input
+      document.getElementById('group-verification').style.display = 'block';
+    });
+    document.getElementById('verify-group-btn').addEventListener('click', function() {
+      const groupLink = document.getElementById('group-link').value;
+      // Dummy verification: check if group link contains "t.me"
+      if (groupLink.includes("t.me")) {
+        alert("Group verified. You've received 100,000 coins as a gift!");
+        coinCount += 100000;
+        updateStats();
+      } else {
+        alert("Group verification failed. Make sure you are the owner and the group meets the specifications.");
+      }
+    });
+
+    /***********************
+     * Admin Panel Functions
+     ***********************/
+    function checkAdmin() {
+      // For demo, check if username is @ahmed1999101
+      if (document.getElementById('username').innerText === "@ahmed1999101") {
+        document.getElementById('admin-panel').style.display = 'block';
+      }
+    }
+    document.getElementById('update-links-btn').addEventListener('click', function() {
+      // Update Earn tab links (for admin use)
+      const newTelegram = document.getElementById('new-telegram-link').value;
+      const newTwitter = document.getElementById('new-twitter-link').value;
+      // Update links in Earn tab accordingly (demo)
+      alert("Earn tab links updated!");
+    });
+
+    /***********************
+     * Stats and Update Functions
+     ***********************/
+    function updateStats() {
+      // Update coins on profile and overall stats
+      document.getElementById('profile-coins').innerText = coinCount;
+      document.getElementById('correct-count').innerText = userData.correct;
+      document.getElementById('incorrect-count').innerText = userData.incorrect;
+      document.getElementById('total-questions').innerText = userData.total;
+      updateRanking();
+    }
+
+    /***********************
+     * Utility Functions
+     ***********************/
+    function openLink(url) {
+      window.open(url, "_blank");
+    }
+
+    /***********************
+     * Initial Load
+     ***********************/
+    window.onload = function() {
+      // Start with Home tab and first question
+      showTab('home');
+      loadQuestion();
+      updateStats();
+      checkAdmin();
+    };
+  </script>
+</body>
+</html>
