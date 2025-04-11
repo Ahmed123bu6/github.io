@@ -82,7 +82,7 @@
       font-size: 18px;
       font-weight: bold;
     }
-    /* باقي أنماط التبويبات تبقى كما هي (Earn, Invite, Ad, Ranking, Profile, Admin) */
+    /* باقي أنماط التبويبات تبقى كما هي (Earn, Invite, Ad, Ranking) */
     #earn-tab .challenge {
       border: 1px solid #000;
       padding: 10px;
@@ -131,6 +131,7 @@
       display: flex;
       justify-content: space-between;
     }
+    /* أنماط تبويب Profile (الحساب) */
     #profile-tab {
       text-align: center;
     }
@@ -139,6 +140,9 @@
       height: 100px;
       border-radius: 50%;
       margin-bottom: 10px;
+    }
+    #profile-tab .user-info {
+      margin-top: 20px;
     }
     #admin-panel {
       border: 1px solid #000;
@@ -278,22 +282,36 @@
         </ul>
         <p>Your Ranking: <span id="user-ranking">N/A</span></p>
       </div>
-      <!-- تبويب Profile -->
+      <!-- تبويب Profile (حسابي) مع دمج تسجيل دخول Telegram -->
       <div id="profile-tab" class="tab-section">
         <h2>Your Profile</h2>
-        <img src="https://via.placeholder.com/100" alt="Profile Picture">
-        <p>Username: <span id="username">User123</span></p>
-        <p>Total Coins: <span id="profile-coins">0</span></p>
-        <button id="add-bot-btn">Add Bot to Your Group and Get 100,000 Coins</button>
-        <div id="group-verification" style="margin-top:20px; display:none;">
-          <label>Enter Your Group Link:</label>
-          <input type="text" id="group-link">
-          <button id="verify-group-btn">Verify and Claim Gift</button>
+        <!-- في البداية نعرض زر تسجيل الدخول من Telegram -->
+        <div id="telegram-login-container">
+          <!-- سيتم إنشاء Telegram Login Widget هنا -->
+          <script async src="https://telegram.org/js/telegram-widget.js?7"
+                  data-telegram-login="SolscanXxxf_bot" 
+                  data-size="large" 
+                  data-userpic="true"
+                  data-request-access="write"
+                  data-callback="onTelegramAuth">
+          </script>
         </div>
-        <div style="margin-top:20px;">
-          <p>Questions Answered Correctly: <span id="correct-count">0</span></p>
-          <p>Questions Answered Incorrectly: <span id="incorrect-count">0</span></p>
-          <p>Total Questions: <span id="total-questions">0</span></p>
+        <!-- منطقة عرض بيانات المستخدم بعد تسجيل الدخول -->
+        <div id="user-info" class="user-info" style="display:none;">
+          <img id="user-photo" src="" alt="Profile Picture">
+          <p>Username: <span id="user-name"></span></p>
+          <p>Total Coins: <span id="profile-coins">0</span></p>
+          <button id="add-bot-btn">Add Bot to Your Group and Get 100,000 Coins</button>
+          <div id="group-verification" style="margin-top:20px; display:none;">
+            <label>Enter Your Group Link:</label>
+            <input type="text" id="group-link">
+            <button id="verify-group-btn">Verify and Claim Gift</button>
+          </div>
+          <div style="margin-top:20px;">
+            <p>Questions Answered Correctly: <span id="correct-count">0</span></p>
+            <p>Questions Answered Incorrectly: <span id="incorrect-count">0</span></p>
+            <p>Total Questions: <span id="total-questions">0</span></p>
+          </div>
         </div>
       </div>
       <!-- لوحة الإدارة (تظهر للمستخدم @ahmed1999101 فقط) -->
@@ -569,7 +587,7 @@
         { username: "Bob", coins: 1200000 },
         { username: "Charlie", coins: 900000 }
       ];
-      rankings.push({ username: document.getElementById('username').innerText, coins: coinCount });
+      rankings.push({ username: document.getElementById('user-name').innerText || document.getElementById('username').innerText, coins: coinCount });
       rankings.sort((a, b) => b.coins - a.coins);
       const rankingList = document.getElementById('ranking-list');
       rankingList.innerHTML = "";
@@ -581,7 +599,7 @@
         const li = document.createElement('li');
         li.innerHTML = `<span>${index+1}. ${user.username}</span><span>${displayCoins} coins</span>`;
         rankingList.appendChild(li);
-        if (user.username === document.getElementById('username').innerText) {
+        if (user.username === (document.getElementById('user-name').innerText || document.getElementById('username').innerText)) {
           document.getElementById('user-ranking').innerText = index + 1;
         }
       });
@@ -589,8 +607,23 @@
     }
 
     /***********************
-     * وظائف تبويب Profile
+     * وظائف تبويب Profile (الحساب) وتكامل Telegram Login
      ***********************/
+    // دالة تُستدعى عند نجاح تسجيل الدخول عبر Telegram
+    function onTelegramAuth(user) {
+      // user يحتوي على بيانات المستخدم مثل id، first_name، last_name، photo_url، username، وغيرها
+      console.log("Telegram auth:", user);
+      // إخفاء حاوية تسجيل الدخول
+      document.getElementById('telegram-login-container').style.display = "none";
+      // عرض منطقة بيانات المستخدم
+      document.getElementById('user-info').style.display = "block";
+      // تعيين صورة المستخدم والاسم
+      document.getElementById('user-photo').src = user.photo_url;
+      document.getElementById('user-name').innerText = user.first_name + (user.last_name ? " " + user.last_name : "");
+      // يمكنك هنا تخزين باقي البيانات أو إرسالها للخادم إذا لزم الأمر
+    }
+
+    // إضافة حدث عند النقر على زر "Add Bot" في قسم الحساب
     document.getElementById('add-bot-btn').addEventListener('click', function() {
       document.getElementById('group-verification').style.display = 'block';
     });
