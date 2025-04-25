@@ -14,7 +14,7 @@
       display:none;
       margin-top:40px;
     }
-    /* Profile (Home View) */
+    /* Home View */
     #home-view img {
       width:120px; height:120px;
       border-radius:50%;
@@ -40,7 +40,7 @@
       margin:12px 0;
       font-size:16px;
     }
-    /* الأزرار الثابتة أسفل اليمين */
+    /* Buttons */
     #btns {
       position: fixed;
       bottom: 20px;
@@ -56,12 +56,10 @@
       border-radius:4px;
       background:#fff;
     }
-    /* Leaderboard / Admin */
-    #leaderboard, #admin-panel {
-      text-align:left;
-    }
+    /* Leaderboard & Admin */
     #leaderboard div, #admin-panel div {
       margin:6px 0;
+      text-align: left;
     }
     #leaderboard img, #admin-panel img {
       width:24px; height:24px;
@@ -77,7 +75,7 @@
   <section id="home-view">
     <img id="profile-photo" src="" alt="صورة المستخدم">
     <h2 id="profile-name">User Name</h2>
-    <!-- مثال على حالات؛ يمكنك استدعائها من API وتكرار هذا العنصر -->
+    <!-- مثال لحالات -->
     <div class="status">🟢 الحالة الأولى</div>
     <div class="status">🔴 الحالة الثانية</div>
   </section>
@@ -116,7 +114,9 @@
     const user = tg.initDataUnsafe.user;
     const ADMIN_USERNAME = 'ahmed1999101';
 
-    // Helper لإظهار قسم واحد وإخفاء البقية
+    // غيّر هنا إلى دومين API الخاص بك
+    const API_BASE = 'https://api.solscanx.com';
+
     function showSection(id) {
       ['home-view','ref-view','leaderboard','admin-panel']
         .forEach(sec => {
@@ -125,20 +125,19 @@
         });
     }
 
-    // إعداد Home button لعرض بروفايل
+    // زر Home
     document.getElementById('btn-home').onclick = () => {
       showSection('home-view');
     };
 
-    // Referral button
+    // زر Referral
     document.getElementById('btn-ref').onclick = () => {
       showSection('ref-view');
     };
 
-    // Leaderboard button
+    // زر Leaderboard
     document.getElementById('btn-leader').onclick = () => {
-      // جلب المتصدرين
-      fetch('/api/leaderboard')
+      fetch(`${API_BASE}/api/leaderboard`)
         .then(r => r.json())
         .then(list => {
           const c = document.getElementById('leaderboard');
@@ -150,18 +149,19 @@
               </div>
             `).join('');
           showSection('leaderboard');
-        });
+        })
+        .catch(console.error);
     };
 
-    // Admin button (يظهر فقط للأدمين)
+    // زر Admin (للأدمين فقط)
     if (user.username === ADMIN_USERNAME) {
       const btnA = document.getElementById('btn-admin');
       btnA.style.display = 'inline-block';
       btnA.onclick = () => {
-        fetch('/api/admin/users', {
+        fetch(`${API_BASE}/api/admin/users`, {
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({user})
+          body:JSON.stringify({ user })
         })
         .then(r=>r.json())
         .then(all=>{
@@ -174,15 +174,19 @@
               </div>
             `).join('');
           showSection('admin-panel');
-        });
+        })
+        .catch(console.error);
       };
     }
 
-    // عند فتح الصفحة أول مرّة، عندنا نُسجّل المستخدم ونولّد رابط إحالة حقيقي
-    fetch('/api/user', {
+    // تسجيل المستخدم وتوليد رابط الإحالة
+    fetch(`${API_BASE}/api/user`, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ user, refCode: new URLSearchParams(location.search).get('ref') })
+      body: JSON.stringify({
+        user,
+        refCode: new URLSearchParams(location.search).get('ref')
+      })
     })
     .then(r=>r.json())
     .then(data=>{
@@ -192,15 +196,14 @@
       // عرض عدد المدعوين
       document.getElementById('invited-count').textContent = data.invitedCount;
     })
-    .catch(e=>{
-      console.error('Failed to fetch /api/user:', e);
-      // تأكد أنّ السيرفر شغّال وأنّ CORS مفعّل إذا استضافته في دومين آخر
+    .catch(err=>{
+      console.error('Fetch /api/user failed:', err);
     });
 
-    // نعرض Referral view أولًا
+    // البداية على Referral view
     showSection('ref-view');
 
-    // ونعدّل الواجهة في Home view
+    // إعداد Home view
     document.getElementById('profile-photo').src = user.photo_url;
     document.getElementById('profile-name').textContent =
       user.first_name + (user.last_name? ' '+user.last_name : '');
