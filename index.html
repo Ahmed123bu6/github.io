@@ -1,145 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Think & Win</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>صفحة تسجيل تيليجرام</title>
   <style>
     body {
-      background-color: #000000;
       font-family: Arial, sans-serif;
       text-align: center;
-      color: #FFD700; /* ذهبي */
       padding: 20px;
-      margin: 0;
     }
-    .telegram-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-    .telegram-button {
-      background-color: #FFD700;
-      color: #000000;
-      border-radius: 10px;
-      padding: 10px;
-      width: 100px;
-      text-decoration: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    .telegram-button:hover {
-      background-color: #e6c200;
-    }
-    .telegram-button img {
-      width: 30px;
-      height: 30px;
-      margin-bottom: 5px;
-    }
-    .welcome-img {
-      max-width: 300px;
-      margin: 20px auto;
-    }
-    .message {
-      font-size: 18px;
+    #user-info {
+      display: none;
       margin-top: 20px;
-      background-color: rgba(255, 215, 0, 0.2); /* ذهبي شفاف */
-      padding: 20px;
-      border-radius: 15px;
     }
-    /* عناوين الأقسام باللون البني */
-    h2, h3 {
-      color: #8B4513;
+    #user-photo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
     }
-    .tokenomics-section {
-      margin-top: 40px;
-      text-align: center;
-    }
-    .tokenomics-section img {
-      max-width: 300px;
-      margin-bottom: 20px;
-    }
-    .tokenomics-section .tokenomics-text {
+    #home-btn {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
       font-size: 16px;
-      line-height: 1.6;
+      cursor: pointer;
     }
-    .roadmap-section {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 16px;
-      line-height: 1.8;
-    }
-    .roadmap-section ol {
-      list-style: decimal inside;
-      padding: 0;
-      margin: 0 auto;
-      max-width: 300px;
-      text-align: left;
+    #user-name {
+      font-size: 18px;
+      margin-top: 8px;
     }
   </style>
 </head>
 <body>
 
-  <div class="telegram-buttons">
-    <a href="https://t.me/Thinkandwin_bot" class="telegram-button" target="_blank">
-      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Bot">
-      BOT
-    </a>
-    <a href="https://t.me/Think_andwin" class="telegram-button" target="_blank">
-      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Channel">
-      Channel
-    </a>
-    <a href="https://t.me/Brain_Coins" class="telegram-button" target="_blank">
-      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Chat">
-      Chat
-    </a>
+  <!-- Telegram Login Widget -->
+  <script async
+    src="https://telegram.org/js/telegram-widget.js?15"
+    data-telegram-login="YourBotUsername"
+    data-size="large"
+    data-userpic="false"
+    data-request-access="write"
+    data-onauth="onTelegramAuth(user)">
+  </script>
+
+  <!-- محتوى بعد تسجيل الدخول -->
+  <div id="user-info">
+    <!-- صورة المستخدم -->
+    <img id="user-photo" src="" alt="صورة الحساب" />
+    <!-- زر Home فوق الاسم -->
+    <button id="home-btn">Home</button>
+    <!-- اسم المستخدم -->
+    <div id="user-name"></div>
   </div>
 
-  <!-- صورة الترحيب باستخدام الرابط من Cloudinary -->
-  <img src="https://asset.cloudinary.com/ds3fbv4me/08278e719bc069618e914b4cb0431d8f" alt="Welcome" class="welcome-img">
+  <script>
+    // دالة تُستدعى بعد نجاح تسجيل الدخول
+    function onTelegramAuth(user) {
+      // user.photo_url يحتوي على رابط الصورة
+      document.getElementById('user-photo').src = user.photo_url;
+      // نعرض الاسم الكامل
+      const fullName = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+      document.getElementById('user-name').textContent = fullName;
+      // نظهر القسم
+      document.getElementById('user-info').style.display = 'block';
+    }
 
-  <!-- رسالة الترحيب -->
-  <div class="message">
-    <h2>Welcome to Think & Win</h2>
-    <p>You can earn money by answering questions</p>
-    <p>Answer more, Earn more</p>
-    <p>No more boredom, Profit is easy</p>
-  </div>
-
-  <!-- قسم Tokenomics باستخدام الرابط من Cloudinary -->
-  <div class="tokenomics-section">
-    <img src="https://asset.cloudinary.com/ds3fbv4me/3ed858ca1d9876a63cb7b271ed25674b" alt="Tokenomics">
-    <div class="tokenomics-text">
-      <p><strong>TOKENOMICS</strong></p>
-      <p>40% Airdrop</p>
-      <p>20% Pre-sale</p>
-      <p>10% Liquidity</p>
-      <p>20% Distribution of future bot rewards</p>
-      <p>5% team</p>
-      <p>5% marketing</p>
-    </div>
-  </div>
-
-  <!-- قسم Roadmap -->
-  <div class="roadmap-section">
-    <h3>Roadmap</h3>
-    <ol>
-      <li>Idea creation</li>
-      <li>Project Launch</li>
-      <li>Financial Rewards</li>
-      <li>Expiry of bonuses</li>
-      <li>Whitelist</li>
-      <li>Announcing the date of the pre-sale</li>
-      <li>Brain Coin assembly finished</li>
-      <li>Corporate & Shopping</li>
-      <li>Lists of Central Exchanges</li>
-      <li>New concept and new events</li>
-    </ol>
-  </div>
+    // حدث الضغط على زر Home
+    document.addEventListener('click', function(e) {
+      if (e.target && e.target.id === 'home-btn') {
+        // يمكنك تعديل هذا لتوجيه المستخدم للصفحة الرئيسية
+        alert('تم الضغط على زر Home');
+      }
+    });
+  </script>
 
 </body>
 </html>
