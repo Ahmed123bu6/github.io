@@ -3,59 +3,127 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>تسجيل الدخول عبر تيليجرام</title>
+  <title>مرحبا بك</title>
   <style>
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
       text-align: center;
-      padding: 20px;
     }
-    #user-info { display: none; margin-top: 20px; }
+    /* الطبقة الرمادية للطلب الأول */
+    #consent-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #consent-overlay .box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 90%;
+      text-align: center;
+    }
+    #consent-overlay button {
+      margin: 10px 5px 0;
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* بعد الموافقة تستظهر هذه العناصر */
+    #telegram-login,
+    #user-info,
+    #home-btn {
+      display: none;
+    }
+
+    #user-info {
+      margin-top: 40px;
+    }
     #user-photo {
-      width: 120px; height: 120px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       object-fit: cover;
-      margin-bottom: 10px;
     }
+    #user-name {
+      margin-top: 8px;
+      font-size: 18px;
+    }
+
+    /* زر Home ثابت أسفل اليمين */
     #home-btn {
-      display: block;
-      margin: 10px auto;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
     }
-    #user-name { font-size: 18px; margin-top: 8px; }
   </style>
 </head>
 <body>
 
-  <!-- هنا استخدمنا يوزر بوتك بدون @ -->
-  <script async
-    src="https://telegram.org/js/telegram-widget.js?19"
-    data-telegram-login="SolscanXxxf_bot"
-    data-size="large"
-    data-userpic="false"
-    data-request-access="write"
-    data-onauth="onTelegramAuth(user)">
-  </script>
+  <!-- 1. أولاً: طلب الموافقة -->
+  <div id="consent-overlay">
+    <div class="box">
+      <p>سوف يتم توصيلك بهذا الموقع</p>
+      <button id="btn-accept">موافق</button>
+      <button id="btn-cancel">إلغاء</button>
+    </div>
+  </div>
 
+  <!-- 2. زر تسجيل الدخول via Telegram (مخفي حتى يوافق) -->
+  <div id="telegram-login">
+    <script async
+      src="https://telegram.org/js/telegram-widget.js?19"
+      data-telegram-login="SolscanXxxf_bot"        <!-- يوذر بوتك بدون @ -->
+      data-size="large"
+      data-userpic="false"
+      data-request-access="write"
+      data-onauth="onTelegramAuth(user)">
+    </script>
+  </div>
+
+  <!-- 3. بعد المصادقة: عرض الصورة والاسم -->
   <div id="user-info">
     <img id="user-photo" src="" alt="صورة الحساب" />
-    <button id="home-btn">Home</button>
     <div id="user-name"></div>
   </div>
 
+  <!-- 4. زر Home ثابت أسفل اليمين -->
+  <button id="home-btn">Home</button>
+
   <script>
+    // عند الضغط على موافق نُخفي overlay ونظهر زر تسجيل الدخول
+    document.getElementById('btn-accept').onclick = () => {
+      document.getElementById('consent-overlay').style.display = 'none';
+      document.getElementById('telegram-login').style.display = 'block';
+    };
+    // عند الإلغاء نُخفي overlay فقط
+    document.getElementById('btn-cancel').onclick = () => {
+      document.getElementById('consent-overlay').style.display = 'none';
+    };
+
+    // دالة التوثيق من Telegram
     function onTelegramAuth(user) {
-      // عرض الصورة والاسم بعد المصادقة
-      document.getElementById('user-photo').src      = user.photo_url;
+      // عرض الصورة
+      document.getElementById('user-photo').src = user.photo_url;
+      // عرض الاسم الكامل
       const fullName = user.first_name + (user.last_name ? ' ' + user.last_name : '');
       document.getElementById('user-name').textContent = fullName;
+      // إظهار بيانات المستخدم وزر Home
       document.getElementById('user-info').style.display = 'block';
+      document.getElementById('home-btn').style.display = 'block';
     }
-    // توجيه عند الضغط على زر Home
+
+    // توجيه عند الضغط على Home
     document.getElementById('home-btn').onclick = () => {
-      window.location.href = '/home'; // غيّر هذا الرابط حسب الحاجة
+      window.location.href = '/home'; // يمكنك تعديل الرابط حسب الحاجة
     };
   </script>
 
