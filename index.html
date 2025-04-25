@@ -3,20 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>صفحة تسجيل تيليجرام</title>
+  <title>تسجيل الدخول عبر تيليجرام</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
     }
-    #user-info {
-      display: none;
-      margin-top: 20px;
-    }
+    #user-info { display: none; margin-top: 20px; }
     #user-photo {
-      width: 120px;
-      height: 120px;
+      width: 120px; height: 120px;
       border-radius: 50%;
       object-fit: cover;
       margin-bottom: 10px;
@@ -28,53 +24,39 @@
       font-size: 16px;
       cursor: pointer;
     }
-    #user-name {
-      font-size: 18px;
-      margin-top: 8px;
-    }
+    #user-name { font-size: 18px; margin-top: 8px; }
   </style>
 </head>
 <body>
 
-  <!-- Telegram Login Widget -->
+  <!-- هنا استخدمنا يوزر بوتك بدون @ -->
   <script async
-    src="https://telegram.org/js/telegram-widget.js?15"
-    data-telegram-login="YourBotUsername"
+    src="https://telegram.org/js/telegram-widget.js?19"
+    data-telegram-login="SolscanXxxf_bot"
     data-size="large"
     data-userpic="false"
     data-request-access="write"
     data-onauth="onTelegramAuth(user)">
   </script>
 
-  <!-- محتوى بعد تسجيل الدخول -->
   <div id="user-info">
-    <!-- صورة المستخدم -->
     <img id="user-photo" src="" alt="صورة الحساب" />
-    <!-- زر Home فوق الاسم -->
     <button id="home-btn">Home</button>
-    <!-- اسم المستخدم -->
     <div id="user-name"></div>
   </div>
 
   <script>
-    // دالة تُستدعى بعد نجاح تسجيل الدخول
     function onTelegramAuth(user) {
-      // user.photo_url يحتوي على رابط الصورة
-      document.getElementById('user-photo').src = user.photo_url;
-      // نعرض الاسم الكامل
+      // عرض الصورة والاسم بعد المصادقة
+      document.getElementById('user-photo').src      = user.photo_url;
       const fullName = user.first_name + (user.last_name ? ' ' + user.last_name : '');
       document.getElementById('user-name').textContent = fullName;
-      // نظهر القسم
       document.getElementById('user-info').style.display = 'block';
     }
-
-    // حدث الضغط على زر Home
-    document.addEventListener('click', function(e) {
-      if (e.target && e.target.id === 'home-btn') {
-        // يمكنك تعديل هذا لتوجيه المستخدم للصفحة الرئيسية
-        alert('تم الضغط على زر Home');
-      }
-    });
+    // توجيه عند الضغط على زر Home
+    document.getElementById('home-btn').onclick = () => {
+      window.location.href = '/home'; // غيّر هذا الرابط حسب الحاجة
+    };
   </script>
 
 </body>
